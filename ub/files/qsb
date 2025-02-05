@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH -J em  #i Job name
+#SBATCH -n 8                       # Total number of mpi tasks requested
+#SBATCH -p amd                    # Queue name amd/intel
+#SBATCH --ntasks=1 
+#SBATCH --cpus-per-task=8
+
+
+module load gromacs/2024
+
+gmx_mpi mdrun -deffnm em_ub  -v
+#gmx_mpi mdrun -deffnm nvt_ub -v 
+#gmx_mpi mdrun -deffnm npt_ub -v
+#gmx_mpi mdrun  -deffnm run_ub -v
+

@@ -1,0 +1,41 @@
+
+define               = -DPOSRES
+integrator           = md
+nsteps               = 2500
+dt                   = 0.002
+continuation         = no
+
+;Non-bonded parameters
+nstlist              = 10
+ns_type              = grid
+cutoff-scheme        = verlet
+vdw-type             = cut-off
+rvdw                 = 1.0
+DispCorr             = EnerPres
+coulombtype          = pme
+rcoulomb             = 1.0
+fourierspacing       = 0.16
+
+
+;Thermostat
+tcoupl               = v-rescale
+tc-grps              = protein non-protein
+tau-t                = 0.1 0.1
+ref-t                = 298 298
+
+;Barostat
+pcoupl               = no 
+
+; Constraints on H-bonds
+constraint_algorithm = lincs
+constraints          = h-bonds
+
+;Periodic boundary conditions
+pbc                  = xyz
+
+;Frequency of saving coordinates and energy
+nstxout              = 10      
+nstenergy            = 10
+
+gen_vel              = yes
+gen_temp             = 298

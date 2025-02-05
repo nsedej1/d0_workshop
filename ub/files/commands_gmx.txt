@@ -1,0 +1,37 @@
+#Generate Gromacs coordinate and topology file
+gmx_mpi pdb2gmx -f 1ubq.pdb -o ub.gro -p ub.top
+
+#Set box size
+gmx_mpi editconf -f ub.gro -o ub_ed.gro -bt cubic -d 1.0
+
+#Solvate
+gmx_mpi solvate -cp ub_ed.gro -cs spc216.gro -p ub.top -o ub_sol.gro
+
+#Add ions
+gmx_mpi grompp -f em.mdp -c ub_sol.gro -p ub.top -o str.tpr
+gmx_mpi genion -s str.tpr -p ub.top -conc 0.15 -o ub_ion.gro
+
+#Minimization
+gmx_mpi grompp -f em.mdp -c ub_ion.gro -p ub.top -o em_ub.tpr
+gmx_mpi mdrun -deffnm em_ub -v
+
+#Extract energy
+gmx_mpi energy -f em_ub.edr -o ener_em_ub.xvg -xvg none
+
+#Equilibration
+gmx_mpi grompp -f nvt.mdp -c em_ub.gro -p ub.top -o nvt_ub.tpr -r em_ub.gro
+#gmx_mpi mdrun -deffnm nvt_ub -v
+gmx_mpi grompp -f npt.mdp -c nvt_ub.gro -p ub.top -r nvt_ub.gro -o npt_ub.tpr -t nvt_ub.cpt
+#gmx_mpi mdrun -deffnm npt_ub -v
+
+#Run
+gmx_mpi grompp -f run.mdp -c npt_ub.gro -p ub.top -o run_ub.tpr -t npt_ub.cpt
+#gmx_mpi mdrun -deffnm run_ub -v
+
+#Post-processing of the trajectory
+gmx_mpi trjconv -s run_ub.tpr -f run_ub.xtc -o pbc_run_ub.xtc -pbc mol
+gmx_mpi trjconv -s run_ub.tpr -f pbc_run_ub.xtc -o reor_run_ub.xtc -fit rot+trans
+
+#Calculate RMSD
+gmx_mpi rms -f run_ub.xtc -s em_ub.tpr -o rms_run_ub.xvg -xvg none
+
